@@ -1,0 +1,62 @@
+import json
+import random
+import paho.mqtt.client as mqtt
+import time
+
+def generate_data():
+    """
+    Generate simulated temperature and humidity data.
+    
+    Returns:
+        dict: A dictionary containing temperature and humidity.
+    """
+    temperature = random.uniform(5.0, 40.0)
+    humidity = random.uniform(30.0, 60.0)
+    return {"temperature": temperature, "humidity": humidity}
+
+def on_connect(client, userdata, flags, rc):
+    """
+    Callback function when the MQTT client connects to the broker.
+    
+    Args:
+        client (mqtt.Client): The MQTT client instance.
+        userdata (any): The private user data as set in Client() or userdata_set().
+        flags (dict): Response flags sent by the broker.
+        rc (int): The connection result.
+    """
+    if rc == 0:
+        print("Connected to MQTT Broker")
+    else:
+        print(f"Failed to connect, return code {rc}")
+
+def main():
+    mqtt_broker = "mqtt.beia-telemetrie.ro"  # Replace with your MQTT broker address
+    mqtt_port = 1883
+    mqtt_topic = "training/device/Catalin-Peicu"
+
+    client = mqtt.Client()
+
+    # Assign the on_connect callback function
+    client.on_connect = on_connect
+
+    # Connect to the MQTT broker
+    client.connect(mqtt_broker, mqtt_port, 60)
+
+    # Start the MQTT client loop
+    client.loop_start()
+
+    try:
+        while True:
+            data = generate_data()
+            payload = json.dumps(data)
+            client.publish(mqtt_topic, payload)
+            print(f"Published data: {payload}")
+            time.sleep(5)  # Wait for 5 seconds before publishing the next data
+    except KeyboardInterrupt:
+        print("Exiting...")
+    finally:
+        client.loop_stop()
+        client.disconnect()
+
+if __name__ == "__main__":
+    main()

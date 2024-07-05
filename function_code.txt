@@ -1,0 +1,13 @@
+var playload=msg.playload;
+var temperature=parseFloat(playload.temperature);
+var humidity=parseFloat(playload.humidity);
+var message={
+    topic:"/training/device/Catalin-Peicu",
+    playload:{
+        temperature:temperature,
+        humidity:humidity
+    },
+    qos:0,
+    retain: false
+}
+return msg;
