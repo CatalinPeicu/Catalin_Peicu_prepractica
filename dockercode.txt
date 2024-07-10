@@ -1,0 +1,25 @@
+from flask import Flask, request, render_template_string
+import os
+
+app = Flask(__name__)
+
+# File to store refresh count
+refresh_count_file = os.getenv('PAGE_REFRESH_COUNT_FILE', 'refresh_count.txt')
+
+# Initialize count
+try:
+    with open(refresh_count_file, 'r') as f:
+        refresh_count = int(f.read().strip())
+except FileNotFoundError:
+    refresh_count = 0
+
+@app.route('/')
+def index():
+    global refresh_count
+    refresh_count += 1
+    with open(refresh_count_file, 'w') as f:
+        f.write(str(refresh_count))
+    return render_template_string('<h1>Page Refresh Count: {{ refresh_count }}</h1>', refresh_count=refresh_count)
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=80)
