@@ -1,0 +1,35 @@
+from flask import Flask
+import time
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Hy! My name is Catalin."
+
+def register_with_arrowhead():
+    registration_data = {
+        "serviceDefinition": "CatalinService",
+        "provider": {
+            "systemName": "CatalinProvider",
+            "address": "localhost",
+            "port": 5000,
+            "authenticationInfo": None
+        },
+        "serviceUri": "/",
+        "endOfValidity": None,
+        "secure": False,
+        "metadata": {},
+        "interfaces": ["HTTP-INSECURE-JSON"]
+    }
+    try:
+        response = requests.post("http://localhost:8443/serviceregistry/register", json=registration_data)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"Failed to register service: {e}")
+
+if __name__ == "__main__":
+    # Delay to ensure the core services are up and running
+    time.sleep(10)
+    register_with_arrowhead()
+    app.run(host='0.0.0.0', port=5000)
